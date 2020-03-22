@@ -18,7 +18,7 @@ ORACLEDB_IMAGE="softwareplant/oracle:latest"
 usage()
 {
 	echo "Usage: "
-	echo "$ labup.sh [mssql | mysql | oracle | postgres]"
+	echo "$ spawn_db.sh [mssql | mysql | oracle | postgres]"
 }
 
 
