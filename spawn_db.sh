@@ -12,13 +12,13 @@ MSSQL_IMAGE="mcr.microsoft.com/mssql/server:2017-latest"
 MYSQL_IMAGE="mysql/mysql-server:latest"
 POSTGRES_IMAGE="postgres:latest"
 ORACLEDB_IMAGE="softwareplant/oracle:latest"
-
+SQLITE3_IMAGE="nouchka/sqlite3"
 
 ##### Functions
 usage()
 {
 	echo "Usage: "
-	echo "$ spawn_db.sh [mssql | mysql | oracle | postgres]"
+	echo "$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3]"
 }
 
 
@@ -67,7 +67,7 @@ start_mssql()
 
 	echo "[i] Creating a new container for Microsoft SQL..."
 	docker run --rm --name mssql -d -e 'ACCEPT_EULA=Y' \
-				  -e 'SA_PASSWORD='$DB_PASSWORD $MSSQL_IMAGE &> /dev/null
+				  -e 'SA_PASSWORD='"$DB_PASSWORD" $MSSQL_IMAGE &> /dev/null
 
 	wait_for 15
 
@@ -75,7 +75,7 @@ start_mssql()
 	echo "--------------------"
 	echo
 	docker exec -it mssql /opt/mssql-tools/bin/sqlcmd \
-			      -S 127.0.0.1 -U sa -P $DB_PASSWORD
+			      -S 127.0.0.1 -U sa -P "$DB_PASSWORD"
 	
 	echo "[i] Cleaning up..."
 	docker stop mssql
@@ -97,13 +97,13 @@ start_mysql()
 	echo "[i] Greping temp password from install log and setting new password"
 	TMP_PASSWORD=$(docker logs mysql 2>&1 | grep GENERATED | awk '{print $5}')
 	docker exec -it mysql mysql --connect-expired-password -uroot \
-			-p$TMP_PASSWORD \
+			-p"$TMP_PASSWORD" \
 			-e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASSWORD';" &> /dev/null
 
 	echo "[i] Starting mysql..."
 	echo "--------------------"
 	echo
-	docker exec -it mysql mysql --silent -uroot -p$DB_PASSWORD
+	docker exec -it mysql mysql --silent -uroot -p"$DB_PASSWORD"
 
 	echo "[i] Cleaning up..."
 	docker stop mysql
@@ -118,7 +118,7 @@ start_postgres()
 	DB_PASSWORD=$(openssl rand -base64 25)
 	
 	echo "[i] Creating a new container for PostgresSQL..."
-	docker run --rm --name postgres -e POSTGRES_PASSWORD=$DB_PASSWORD -d $POSTGRES_IMAGE &>/dev/null
+	docker run --rm --name postgres -e POSTGRES_PASSWORD="$DB_PASSWORD" -d $POSTGRES_IMAGE &>/dev/null
 
 	wait_for 15
 
@@ -153,7 +153,32 @@ start_oracle()
 }
 
 
+start_sqlite3()
+{	
+	echo "[i] Creating a new container for sqlite3..."
+	docker run --rm -it --name sqlite3 -d $SQLITE3_IMAGE
+
+	wait_for 5
+
+	echo "[i] Starting sqlite3..."
+	echo "--------------------"
+	echo
+	docker exec -it sqlite3 sqlite3
+	
+	echo "[i] Cleaning up..."
+	docker stop sqlite3
+
+	echo "[i] Done."
+}
+
 ##### Main
+if command -v docker &> /dev/null ; then
+    :
+else
+    echo "[!] docker not found"
+    exit
+fi
+
 echo "===================="
 echo "==    spawn_db    =="
 echo "===================="
@@ -177,6 +202,9 @@ case $1 in
 	oracle )
 		start_oracle
 		;;
+	sqlite3 )
+	        start_sqlite3
+	        ;;
 	-h | --help ) 
 		usage
 		exit
@@ -187,4 +215,3 @@ case $1 in
 		;;
 esac
 exit
-
