@@ -9,6 +9,7 @@ At the moment, the following databases are supported:
 - Microsoft SQL
 - Postgres SQL
 - Oracle Database
+- sqlite3
 
 ## Usage
 ```bash
