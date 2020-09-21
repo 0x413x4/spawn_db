@@ -20,7 +20,7 @@ alexa@deadbeef:~ []
 ====================
 
 Usage: 
-$ spawn_db.sh [mssql | mysql | oracle | postgres]
+$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3]
 ```
 
 ## Pre-requirements
