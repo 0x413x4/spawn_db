@@ -5,10 +5,11 @@ spawn_db is a small bash script which pulls docker images for various databases 
 This comes particularly useful when investigating SQL injections, to quickly lab up and get back to focusing on exploitation.
 
 At the moment, the following databases are supported:
+- EnterpriseDB
 - MySQL
 - Microsoft SQL
-- Postgres SQL
 - Oracle Database
+- Postgres SQL
 - sqlite3
 
 ## Usage
@@ -20,7 +21,7 @@ alexa@deadbeef:~ []
 ====================
 
 Usage: 
-$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3]
+$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3 | enterprisedb]
 ```
 
 ## Pre-requirements
@@ -28,7 +29,3 @@ $ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3]
 - openssl (Used to generate random passwords)
 
 For Windows users, an easy workflow can be to use the script on WSL2
-
-## Example
-[![asciicast](https://asciinema.org/a/mKaOf5W07I8A9bgeiccwggAtm.png)](https://asciinema.org/a/mKaOf5W07I8A9bgeiccwggAtm)
-
