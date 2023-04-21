@@ -13,12 +13,13 @@ MYSQL_IMAGE="mysql/mysql-server:latest"
 POSTGRES_IMAGE="postgres:latest"
 ORACLEDB_IMAGE="softwareplant/oracle:latest"
 SQLITE3_IMAGE="nouchka/sqlite3"
+ENTERPRISEDB_IMAGE="ghcr.io/enterprisedb/postgresql"
 
 ##### Functions
 usage()
 {
 	echo "Usage: "
-	echo "$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3]"
+	echo "$ spawn_db.sh [mssql | mysql | oracle | postgres | sqlite3 | enterprisedb]"
 }
 
 
@@ -133,6 +134,26 @@ start_postgres()
 	echo "[i] Done."
 }
 
+start_enterprisedb()
+{
+	echo "[i] Generating a random password..."
+	DB_PASSWORD=$(openssl rand -base64 25)
+	
+	echo "[i] Creating a new container for PostgresSQL..."
+	docker run --rm --name enterprisedb -e POSTGRES_PASSWORD="$DB_PASSWORD" -d $ENTERPRISEDB_IMAGE &>/dev/null
+
+	wait_for 15
+
+	echo "[i] Starting enterprisedb..."
+	echo "--------------------"
+	echo
+	docker exec -it enterprisedb psql -h 127.0.0.1 -U postgres
+
+	echo "[i] Cleaning up..."
+	docker stop enterprisedb
+
+	echo "[i] Done."
+}
 
 start_oracle()
 {
@@ -204,6 +225,9 @@ case $1 in
 		;;
 	sqlite3 )
 	        start_sqlite3
+	        ;;
+	enterprisedb )
+	        start_enterprisedb
 	        ;;
 	-h | --help ) 
 		usage
